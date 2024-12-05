@@ -12,7 +12,7 @@ void log_UDP_pkt(unsigned char *buf, int size) {
 	struct iphdr *iph = (struct iphdr *)(buf +  sizeof(struct ethhdr));
 	unsigned short iphdrlen = 4 * iph->ihl;
 	struct udphdr *udph = (struct udphdr *)(buf + iphdrlen  + sizeof(struct ethhdr));
-	int hdr_size =  sizeof(struct ethhdr) + iphdrlen + sizeof udph;
+	int hdr_size =  sizeof(struct ethhdr) + iphdrlen + sizeof(udph);
 	
 	fprintf(logfile, "\n\n***********************UDP Packet*************************\n");
 	
@@ -33,7 +33,7 @@ void log_UDP_pkt(unsigned char *buf, int size) {
 		
 	fprintf(logfile, "Data Payload\n");	
 	
-	logPktData(buf + hdr_size , size - hdr_size);
+	logPktData(buf + hdr_size, size - hdr_size);
 	
 	fprintf(logfile, "\n###########################################################");
 }
