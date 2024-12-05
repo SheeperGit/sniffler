@@ -55,7 +55,6 @@ void log_ICMP_pkt(unsigned char *buf, int size) {
 	logPktData(buf + iphdrlen, sizeof(icmph));
 		
 	fprintf(logfile, "Data Payload\n");	
-	
 	logPktData(buf + hdr_size, size - hdr_size);
 	
 	fprintf(logfile, "\n###########################################################");

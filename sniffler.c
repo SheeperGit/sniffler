@@ -11,7 +11,7 @@
 
 #include "log_utils.h"
 
-#define BUF_SIZE 65536  // (65536 bytes) / (1024 bytes) = 64KB
+#define BUF_SIZE 65536  /* (65536 bytes) / (1024 bytes) = 64KB */
 
 FILE *logfile;
 

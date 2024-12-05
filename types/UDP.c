@@ -31,8 +31,7 @@ void log_UDP_pkt(unsigned char *buf, int size) {
 	fprintf(logfile, "UDP Header\n");
 	logPktData(buf + iphdrlen, sizeof(udph));
 		
-	fprintf(logfile, "Data Payload\n");	
-	
+	fprintf(logfile, "Data Payload\n");
 	logPktData(buf + hdr_size, size - hdr_size);
 	
 	fprintf(logfile, "\n###########################################################");

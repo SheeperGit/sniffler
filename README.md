@@ -12,6 +12,8 @@ Supported Packet Types:
 |:--------:|:---------:|
 |   TCP    |     ✔     |
 |   UDP    |     ✔     |
-|   ARP    |     ✖     |
-|   ICMP   |     ✖     |
-|   IGMP   |     ✖     |
+|   ARP    |     ✔     |
+|   ICMP   |     ✔     |
+|   IGMP   |     ✔     |
+|   DNS    |     ✖     |
+|   HTTP   |     ✖     |

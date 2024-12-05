@@ -52,34 +52,46 @@ void logIPHdr(unsigned char* buf, int size) {
 }
 
 void dumpPkt(unsigned char *buf, int size) {
-	struct iphdr *iph = (struct iphdr *)(buf + sizeof(struct ethhdr)); // Exclude eth header
-	++total;
-	switch (iph->protocol) {
-		case 1:   /* ICMP */
-			++icmp;
-			log_ICMP_pkt(buf, size);
-			break;
-		
-		case 2:   /* IGMP */
-			++igmp;
-			break;
-		
-		case 6:   /* TCP */
-			++tcp;
-			log_TCP_pkt(buf, size);
-			break;
-		
-		case 17:  /* UDP */
-			++udp;
-			log_UDP_pkt(buf, size);
-			break;
-		
-		default:  /* Other Unsupported Protocol Types */
-			++other;
-			break;
-	}
-  /* Carriage return `\r` moves cursor back to start of curr line. Allows for text overwrites. */
-	printf("TCP: %d, UDP: %d, ARP: %d, ICMP: %d, IGMP: %d, Other: %d, Total: %d\r", tcp, udp, arp, icmp, igmp, other, total);
+  struct ethhdr *eth = (struct ethhdr *)buf;
+  unsigned short ethertype = ntohs(eth->h_proto);
+  ++total;
+
+  if (ethertype == ETH_P_ARP) { /* ARP */
+    ++arp;
+    log_ARP_pkt(buf, size);
+  } else if (ethertype == ETH_P_IP) {
+    struct iphdr *iph = (struct iphdr *)(buf + sizeof(struct ethhdr)); /* Exclude Ethernet header */
+
+    switch (iph->protocol) {
+      case IPPROTO_ICMP:   /* ICMP */
+        ++icmp;
+        log_ICMP_pkt(buf, size);
+        break;
+
+      case IPPROTO_IGMP:   /* IGMP */
+        ++igmp;
+        break;
+
+      case IPPROTO_TCP:   /* TCP */
+        ++tcp;
+        log_TCP_pkt(buf, size);
+        break;
+
+      case IPPROTO_UDP:  /* UDP */
+        ++udp;
+        log_UDP_pkt(buf, size);
+        break;
+
+      default:  /* Other Unsupported Protocol Types */
+        ++other;
+        break;
+      }
+  } else {
+    ++other;
+  }
+
+  /* Carriage return `\r` moves cursor back to start of current line. Allows for text overwrites. */
+  printf("TCP: %d, UDP: %d, ARP: %d, ICMP: %d, IGMP: %d, Other: %d, Total: %d\r", tcp, udp, arp, icmp, igmp, other, total);
 }
 
 /*

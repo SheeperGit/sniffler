@@ -35,8 +35,6 @@ void log_TCP_pkt(unsigned char *buf, int size) {
 	fprintf(logfile, "\t- Checksum : %d\n", ntohs(tcph->check));
 	fprintf(logfile, "\t- Urg Ptr  : %d\n", tcph->urg_ptr);
 	fprintf(logfile, "\n");
-	fprintf(logfile, "                        DATA Dump                         ");
-	fprintf(logfile, "\n");
 		
 	fprintf(logfile, "IP Header\n");
 	logPktData(buf, iphdrlen);
