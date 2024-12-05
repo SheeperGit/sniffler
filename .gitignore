@@ -1,0 +1,8 @@
+# output files
+log.*
+*.out
+*.o
+sniffler
+
+# misc
+.vscode

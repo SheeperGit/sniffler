@@ -1,0 +1,1 @@
+void log_ICMP_pkt(unsigned char *, int);

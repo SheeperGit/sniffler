@@ -1,0 +1,1 @@
+void log_ARP_pkt(unsigned char *, int);
