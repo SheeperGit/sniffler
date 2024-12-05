@@ -7,4 +7,11 @@ TODO: List usage here...
 ## Supported Packet Types
 All supported packet types are listed in `types/`.
 
-Supported Packet Types: `N/A`.
+Supported Packet Types: 
+| Protocol | Supported |
+|:--------:|:---------:|
+|   TCP    |     ✔     |
+|   UDP    |     ✔     |
+|   ARP    |     ✖     |
+|   ICMP   |     ✖     |
+|   IGMP   |     ✖     |
