@@ -15,7 +15,8 @@ void log_TCP_pkt(unsigned char *buf, int size) {
 	int hdr_size = sizeof(struct ethhdr) + iphdrlen + (4 * tcph->doff);
 	
 	fprintf(logfile, "\n\n***********************TCP Packet*************************\n");	
-		
+	
+  logEthHdr(buf, size);
 	logIPHdr(buf, size);
 		
 	fprintf(logfile, "\n");

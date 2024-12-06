@@ -6,7 +6,7 @@
 
 #include "../log_utils.h"
 
-extern FILE *logfile;
+extern FILE *logfile; // Defined in sniffler.c
 
 void log_ICMP_pkt(unsigned char *buf, int size) {
 	struct iphdr *iph = (struct iphdr *)(buf  + sizeof(struct ethhdr));
@@ -16,6 +16,7 @@ void log_ICMP_pkt(unsigned char *buf, int size) {
 	
 	fprintf(logfile, "\n\n***********************ICMP Packet*************************\n");	
 	
+  logEthHdr(buf, size);
 	logIPHdr(buf, size);
 			
 	fprintf(logfile, "\n");

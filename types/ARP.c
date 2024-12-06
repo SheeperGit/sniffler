@@ -5,7 +5,7 @@
 
 #include "../log_utils.h"
 
-extern FILE *logfile;
+extern FILE *logfile; // Defined in sniffler.c
 
 void log_ARP_pkt(unsigned char *buf, int size) {
   struct ether_arp *arp = (struct ether_arp *)(buf + + sizeof(struct ethhdr));

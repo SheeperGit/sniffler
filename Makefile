@@ -8,8 +8,7 @@ TYPES_DIR = types
 
 # src files #
 SRC = $(SRC_DIR)/sniffler.c $(SRC_DIR)/log_utils.c \
-      $(TYPES_DIR)/ARP.c $(TYPES_DIR)/ICMP.c \
-      $(TYPES_DIR)/TCP.c $(TYPES_DIR)/UDP.c
+      $(wildcard $(TYPES_DIR)/*.c)
 
 # .h files #
 INCLUDES = -I$(SRC_DIR) -I$(TYPES_DIR)

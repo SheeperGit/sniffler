@@ -3,19 +3,22 @@
 #include <ctype.h>
 #include <net/ethernet.h>
 #include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
 #include "types/ARP.h"
+#include "types/HTTP.h"
 #include "types/ICMP.h"
 #include "types/TCP.h"
 #include "types/UDP.h"
 
+#define HTTP_PORT 80
 #define COL_SIZE 16
 
 extern FILE *logfile;
 struct sockaddr_in src, dst;
-int tcp = 0, udp = 0, arp = 0, icmp = 0, igmp = 0, other = 0, total = 0;  /* Counters */
+int tcp = 0, udp = 0, arp = 0, icmp = 0, igmp = 0, http = 0, other = 0, total = 0;  /* Counters */
 
 void logEthHdr(unsigned char *buf, int size) {
 	struct ethhdr *eth = (struct ethhdr *)buf;
@@ -27,8 +30,7 @@ void logEthHdr(unsigned char *buf, int size) {
 	fprintf(logfile, "\t- Protocol : %u \n", (unsigned short)eth->h_proto);
 }
 
-void logIPHdr(unsigned char* buf, int size) {
-	logEthHdr(buf, size);
+void logIPHdr(unsigned char *buf, int size) {
 	struct iphdr *iph = (struct iphdr *)(buf  + sizeof(struct ethhdr));
 	
 	memset(&src, 0, sizeof(src));
@@ -73,8 +75,16 @@ void dumpPkt(unsigned char *buf, int size) {
         break;
 
       case IPPROTO_TCP:   /* TCP */
-        ++tcp;
-        log_TCP_pkt(buf, size);
+        struct iphdr *iph = (struct iphdr *)(buf + sizeof(struct ethhdr));
+        unsigned short iphdrlen = 4 * iph->ihl;
+        struct tcphdr *tcph = (struct tcphdr *)(buf + sizeof(struct ethhdr) + iphdrlen);
+        if (ntohs(tcph->source) == HTTP_PORT || ntohs(tcph->dest) == HTTP_PORT) { /* HTTP */
+          ++http;
+          log_HTTP_pkt(buf, size);
+        } else {  /* (Plain) TCP */
+          ++tcp;
+          log_TCP_pkt(buf, size);
+        }
         break;
 
       case IPPROTO_UDP:  /* UDP */
@@ -91,7 +101,7 @@ void dumpPkt(unsigned char *buf, int size) {
   }
 
   /* Carriage return `\r` moves cursor back to start of current line. Allows for text overwrites. */
-  printf("TCP: %d, UDP: %d, ARP: %d, ICMP: %d, IGMP: %d, Other: %d, Total: %d\r", tcp, udp, arp, icmp, igmp, other, total);
+  printf("TCP: %d, UDP: %d, ARP: %d, ICMP: %d, IGMP: %d, HTTP: %d, Other: %d, Total: %d\r", tcp, udp, arp, icmp, igmp, http, other, total);
 }
 
 /*

@@ -1,0 +1,1 @@
+void log_DNS_pkt(unsigned char *, int);
