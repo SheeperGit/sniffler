@@ -4,21 +4,24 @@
 #include <net/ethernet.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
+#include <netinet/udp.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
 #include "types/ARP.h"
+#include "types/DNS.h"
 #include "types/HTTP.h"
 #include "types/ICMP.h"
 #include "types/TCP.h"
 #include "types/UDP.h"
 
+#define DNS_PORT 53
 #define HTTP_PORT 80
 #define COL_SIZE 16
 
 extern FILE *logfile;
 struct sockaddr_in src, dst;
-int tcp = 0, udp = 0, arp = 0, icmp = 0, igmp = 0, http = 0, other = 0, total = 0;  /* Counters */
+int tcp = 0, udp = 0, arp = 0, icmp = 0, igmp = 0, dns = 0, http = 0, other = 0, total = 0;  /* Counters */
 
 void logEthHdr(unsigned char *buf, int size) {
 	struct ethhdr *eth = (struct ethhdr *)buf;
@@ -63,6 +66,7 @@ void dumpPkt(unsigned char *buf, int size) {
     log_ARP_pkt(buf, size);
   } else if (ethertype == ETH_P_IP) {
     struct iphdr *iph = (struct iphdr *)(buf + sizeof(struct ethhdr)); /* Exclude Ethernet header */
+    unsigned short iphdrlen = 4 * iph->ihl;
 
     switch (iph->protocol) {
       case IPPROTO_ICMP:   /* ICMP */
@@ -75,8 +79,6 @@ void dumpPkt(unsigned char *buf, int size) {
         break;
 
       case IPPROTO_TCP:   /* TCP */
-        struct iphdr *iph = (struct iphdr *)(buf + sizeof(struct ethhdr));
-        unsigned short iphdrlen = 4 * iph->ihl;
         struct tcphdr *tcph = (struct tcphdr *)(buf + sizeof(struct ethhdr) + iphdrlen);
         if (ntohs(tcph->source) == HTTP_PORT || ntohs(tcph->dest) == HTTP_PORT) { /* HTTP */
           ++http;
@@ -88,8 +90,14 @@ void dumpPkt(unsigned char *buf, int size) {
         break;
 
       case IPPROTO_UDP:  /* UDP */
-        ++udp;
-        log_UDP_pkt(buf, size);
+        struct udphdr *udph = (struct udphdr *)(buf + sizeof(struct ethhdr) + iphdrlen);
+        if (ntohs(udph->source) == DNS_PORT || ntohs(udph->dest) == DNS_PORT) { /* DNS */
+          ++dns;
+          log_DNS_pkt(buf, size);
+        } else { /* (Plain) UDP */
+          ++udp;
+          log_UDP_pkt(buf, size);
+        }
         break;
 
       default:  /* Other Unsupported Protocol Types */
@@ -101,7 +109,7 @@ void dumpPkt(unsigned char *buf, int size) {
   }
 
   /* Carriage return `\r` moves cursor back to start of current line. Allows for text overwrites. */
-  printf("TCP: %d, UDP: %d, ARP: %d, ICMP: %d, IGMP: %d, HTTP: %d, Other: %d, Total: %d\r", tcp, udp, arp, icmp, igmp, http, other, total);
+  printf("TCP: %d, UDP: %d, ARP: %d, ICMP: %d, IGMP: %d, DNS: %d, HTTP: %d, Other: %d, Total: %d\r", tcp, udp, arp, icmp, igmp, dns, http, other, total);
 }
 
 /*
