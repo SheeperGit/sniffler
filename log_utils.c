@@ -19,9 +19,11 @@
 #define HTTP_PORT 80
 #define COL_SIZE 16
 
-extern FILE *logfile;
 struct sockaddr_in src, dst;
 int tcp = 0, udp = 0, arp = 0, icmp = 0, igmp = 0, dns = 0, http = 0, other = 0, total = 0;  /* Counters */
+
+extern FILE *logfile;
+extern int log_tcp, log_udp, log_arp, log_icmp, log_igmp, log_dns, log_http, log_other;  /* For --only */
 
 void logEthHdr(unsigned char *buf, int size) {
 	struct ethhdr *eth = (struct ethhdr *)buf;
@@ -59,53 +61,79 @@ void logIPHdr(unsigned char *buf, int size) {
 void dumpPkt(unsigned char *buf, int size) {
   struct ethhdr *eth = (struct ethhdr *)buf;
   unsigned short ethertype = ntohs(eth->h_proto);
-  ++total;
 
   if (ethertype == ETH_P_ARP) { /* ARP */
-    ++arp;
-    log_ARP_pkt(buf, size);
+    if (logfile && log_arp) {
+      ++total;
+      ++arp;
+      log_ARP_pkt(buf, size);
+    }
   } else if (ethertype == ETH_P_IP) {
     struct iphdr *iph = (struct iphdr *)(buf + sizeof(struct ethhdr)); /* Exclude Ethernet header */
     unsigned short iphdrlen = 4 * iph->ihl;
 
     switch (iph->protocol) {
       case IPPROTO_ICMP:   /* ICMP */
-        ++icmp;
-        log_ICMP_pkt(buf, size);
+        if (logfile && log_icmp) {
+          ++total;
+          ++icmp;
+          log_ICMP_pkt(buf, size);
+        }
         break;
 
       case IPPROTO_IGMP:   /* IGMP */
-        ++igmp;
+        if (log_igmp) {
+          ++total;
+          ++igmp;
+        }
         break;
 
       case IPPROTO_TCP:   /* TCP */
         struct tcphdr *tcph = (struct tcphdr *)(buf + sizeof(struct ethhdr) + iphdrlen);
         if (ntohs(tcph->source) == HTTP_PORT || ntohs(tcph->dest) == HTTP_PORT) { /* HTTP */
-          ++http;
-          log_HTTP_pkt(buf, size);
+          if (logfile && log_http) {
+            ++total;
+            ++http;
+            log_HTTP_pkt(buf, size);
+          }
         } else {  /* (Plain) TCP */
-          ++tcp;
-          log_TCP_pkt(buf, size);
+          if (logfile && log_tcp) {
+            ++total;
+            ++tcp;
+            log_TCP_pkt(buf, size);
+          }
         }
         break;
 
       case IPPROTO_UDP:  /* UDP */
         struct udphdr *udph = (struct udphdr *)(buf + sizeof(struct ethhdr) + iphdrlen);
         if (ntohs(udph->source) == DNS_PORT || ntohs(udph->dest) == DNS_PORT) { /* DNS */
-          ++dns;
-          log_DNS_pkt(buf, size);
+          if (logfile && log_dns) {
+            ++total;
+            ++dns;
+            log_DNS_pkt(buf, size);
+          }
         } else { /* (Plain) UDP */
-          ++udp;
-          log_UDP_pkt(buf, size);
+          if (logfile && log_udp) {
+            ++total;
+            ++udp;
+            log_UDP_pkt(buf, size);
+          }
         }
         break;
 
       default:  /* Other Unsupported Protocol Types */
-        ++other;
+        if (log_other) {
+          ++total;
+          ++other;
+        }
         break;
       }
   } else {
-    ++other;
+    if (log_other) {
+      ++total;
+      ++other;
+    }
   }
 
   /* Carriage return `\r` moves cursor back to start of current line. Allows for text overwrites. */
