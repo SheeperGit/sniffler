@@ -19,17 +19,18 @@ int log_tcp = 1, log_udp = 1, log_arp = 1, log_icmp = 1, log_igmp = 1, log_dns =
 void print_usage(const char *prog_name) {
 	printf("Usage: sudo %s [OPTIONS]\n", prog_name);
 	printf("\nOptions:\n");
-	printf("  -q, --no-log                 Disable logging of packet details (useful for performance)\n");
+	printf("  -q, --no-log                 Disable file logging of packet details\n");
 	printf("  --only=<protocols>           Specify which protocols to log (comma-separated). Valid protocols: \n");
 	printf("                               TCP, UDP, ARP, ICMP, IGMP, DNS, HTTP, OTHER\n");
 	printf("  -o, --out=<filename>         Specify a custom filename for the log output (default is 'log.txt')\n");
+	printf("                             	 This option is useless when the -q option is also specified\n");
 	printf("  -i, --interface=<interface>  Bind to a specific network interface (e.g., eth0, enp4s0, etc.)\n");
 	printf("                             	 Default is no interface binding (uses first available)\n");
 	printf("\nExamples:\n");
 	printf("  sudo %s --only=TCP,UDP --out=logfile.txt -i eth0\n", prog_name);
 	printf("  sudo %s -q\n", prog_name);
 	printf("  sudo %s --interface=eth0\n", prog_name);
-	printf("  sudo %s --only=DNS --out=my_lovely_logname.txt\n", prog_name);
+	printf("  sudo %s --only=dns --out=my_dns_packets.log\n", prog_name);
 }
 
 void parse_only(char *protocols) {

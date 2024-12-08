@@ -2,7 +2,23 @@
 A simple CLI packet sniffer written in C.
 
 ## Usage
-TODO: List usage here...
+`sudo ./sniffler [OPTIONS]`
+
+Options:
+
+    -q, --no-log                 Disable file logging of packet details
+    --only=<protocols>           Specify which protocols to log (comma-separated). Valid protocols:
+                                 TCP, UDP, ARP, ICMP, IGMP, DNS, HTTP, OTHER
+    -o, --out=<filename>         Specify a custom filename for the log output (default is 'log.txt')
+                                 This option is useless when the -q option is also specified
+    -i, --interface=<interface>  Bind to a specific network interface (e.g., eth0, enp4s0, etc.)
+                                 Default is no interface binding (uses first available)
+Examples:
+
+    sudo ./sniffler --only=TCP,UDP --out=logfile.txt -i eth0
+    sudo ./sniffler -q
+    sudo ./sniffler --interface=eth0
+    sudo ./sniffler --only=dns --out=my_dns_packets.log
 
 ## Supported Packet Types
 All supported packet types are listed in `types/`.
