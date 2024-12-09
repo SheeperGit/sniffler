@@ -20,12 +20,13 @@ void print_usage(const char *prog_name) {
 	printf("Usage: sudo %s [OPTIONS]\n", prog_name);
 	printf("\nOptions:\n");
 	printf("  -q, --no-log                 Disable file logging of packet details\n");
+	printf("  -s --select=<protocols>\n");
 	printf("  --only=<protocols>           Specify which protocols to log (comma-separated). Valid protocols: \n");
 	printf("                               TCP, UDP, ARP, ICMP, IGMP, DNS, HTTP, OTHER\n");
 	printf("  -o, --out=<filename>         Specify a custom filename for the log output (default is 'log.txt')\n");
-	printf("                             	 This option is useless when the -q option is also specified\n");
+	printf("                               This option is useless when the -q option is also specified\n");
 	printf("  -i, --interface=<interface>  Bind to a specific network interface (e.g., eth0, enp4s0, etc.)\n");
-	printf("                             	 Default is no interface binding (uses first available)\n");
+	printf("                               Default is no interface binding (uses first available)\n");
 	printf("\nExamples:\n");
 	printf("  sudo %s --only=TCP,UDP --out=logfile.txt -i eth0\n", prog_name);
 	printf("  sudo %s -q\n", prog_name);
@@ -38,21 +39,21 @@ void parse_only(char *protocols) {
 	char *token = strtok(protocols, ",");	/* Seperate by tokens (comma-seperated values) */
 	
 	while (token != NULL) {
-		if (strcasecmp(token, "TCP") == 0) {
+		if (!strcasecmp(token, "TCP")) {
 			log_tcp = 1;
-		} else if (strcasecmp(token, "HTTP") == 0) {
+		} else if (!strcasecmp(token, "HTTP")) {
 			log_http = 1;
-		} else if (strcasecmp(token, "UDP") == 0) {
+		} else if (!strcasecmp(token, "UDP")) {
 			log_udp = 1;
-		} else if (strcasecmp(token, "DNS") == 0) {
+		} else if (!strcasecmp(token, "DNS")) {
 			log_dns = 1;
-		} else if (strcasecmp(token, "ARP") == 0) {
+		} else if (!strcasecmp(token, "ARP")) {
 			log_arp = 1;
-		} else if (strcasecmp(token, "ICMP") == 0) {
+		} else if (!strcasecmp(token, "ICMP")) {
 			log_icmp = 1;
-		} else if (strcasecmp(token, "IGMP") == 0) {
+		} else if (!strcasecmp(token, "IGMP")) {
 			log_igmp = 1;
-		} else if (strcasecmp(token, "OTHER") == 0) {
+		} else if (!strcasecmp(token, "OTHER")) {
 			log_other = 1;
 		} else {
 			fprintf(stderr, "Unknown protocol: %s\n", token);
@@ -68,16 +69,23 @@ int main(int argc, char *argv[]) {
 
 	/* CLA parse */
 	for (int i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
 			print_usage(argv[0]);
 			return 0;
 		} else if (!strcmp(argv[i], "-q") || !strcmp(argv[i], "--no-log")) {
 			no_log = 1;
 			break;
-		} else if (strncmp(argv[i], "--only=", 7) == 0) {
-			parse_only(argv[i] + 7);
-		} else if (strncmp(argv[i], "-o", 2) == 0 || strncmp(argv[i], "--out", 5) == 0) {
-			if (strncmp(argv[i], "--out=", 6) == 0) {
+		} else if (!strncmp(argv[i], "--only=", 7) || !strncmp(argv[i], "--select=", 9) || !strncmp(argv[i], "-s", 2)) {
+			if (!strncmp(argv[i], "--only=", 7)) {
+				parse_only(argv[i] + 7);
+			} else if (!strncmp(argv[i], "--select=", 9)) {
+				parse_only(argv[i] + 9);
+			} else {
+				parse_only(argv[i + 1]);
+				i++;	/* Skip selected protocols */
+			}
+		} else if (!strncmp(argv[i], "-o", 2) || !strncmp(argv[i], "--out", 5)) {
+			if (!strncmp(argv[i], "--out=", 6)) {
 				log_filename = argv[i] + 6;
 			} else if (i + 1 < argc) {
 				log_filename = argv[i + 1];
@@ -86,9 +94,9 @@ int main(int argc, char *argv[]) {
 				fprintf(stderr, "Missing filename after %s\n", argv[i]);
 				return 1;
 			}
-		} else if (strncmp(argv[i], "-i", 2) == 0 || strncmp(argv[i], "--interface=", 12) == 0) {
+		} else if (!strncmp(argv[i], "-i", 2) || !strncmp(argv[i], "--interface=", 12)) {
 			char *if_name = NULL;
-			if (strncmp(argv[i], "-i", 2) == 0) {
+			if (!strncmp(argv[i], "-i", 2)) {
 				if_name = argv[i + 1];
 				i++; /* Skip netw interface name */
 			} else {

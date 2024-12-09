@@ -7,6 +7,8 @@ A simple CLI packet sniffer written in C.
 Options:
 
     -q, --no-log                 Disable file logging of packet details
+    -s <protocols>, 
+    --select=<protocols>, 
     --only=<protocols>           Specify which protocols to log (comma-separated). Valid protocols:
                                  TCP, UDP, ARP, ICMP, IGMP, DNS, HTTP, OTHER
     -o, --out=<filename>         Specify a custom filename for the log output (default is 'log.txt')
@@ -23,7 +25,6 @@ Examples:
 ## Supported Packet Types
 All supported packet types are listed in `types/`.
 
-Supported Packet Types: 
 | Protocol | Supported |
 |:--------:|:---------:|
 |   TCP    |     ✔     |
