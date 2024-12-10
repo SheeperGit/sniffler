@@ -1,5 +1,6 @@
 # Sniffler
-A simple CLI packet sniffer written in C.
+A simple CLI [packet sniffer](https://en.wikipedia.org/wiki/Packet_analyzer) written in [C](https://en.wikipedia.org/wiki/C_(programming_language)).
+
 Video Demonstration: https://www.youtube.com/watch?v=gkRJeDjVkAU
 
 ## Usage
