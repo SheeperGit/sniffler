@@ -63,10 +63,10 @@ void dumpPkt(unsigned char *buf, int size) {
   unsigned short ethertype = ntohs(eth->h_proto);
 
   if (ethertype == ETH_P_ARP) { /* ARP */
-    if (logfile && log_arp) {
+    if (log_arp) {
       ++total;
       ++arp;
-      log_ARP_pkt(buf, size);
+      if (logfile) log_ARP_pkt(buf, size);
     }
   } else if (ethertype == ETH_P_IP) {
     struct iphdr *iph = (struct iphdr *)(buf + sizeof(struct ethhdr)); /* Exclude Ethernet header */
@@ -74,10 +74,10 @@ void dumpPkt(unsigned char *buf, int size) {
 
     switch (iph->protocol) {
       case IPPROTO_ICMP:   /* ICMP */
-        if (logfile && log_icmp) {
+        if (log_icmp) {
           ++total;
           ++icmp;
-          log_ICMP_pkt(buf, size);
+          if (logfile) log_ICMP_pkt(buf, size);
         }
         break;
 
@@ -91,16 +91,16 @@ void dumpPkt(unsigned char *buf, int size) {
       case IPPROTO_TCP:   /* TCP */
         struct tcphdr *tcph = (struct tcphdr *)(buf + sizeof(struct ethhdr) + iphdrlen);
         if (ntohs(tcph->source) == HTTP_PORT || ntohs(tcph->dest) == HTTP_PORT) { /* HTTP */
-          if (logfile && log_http) {
+          if (log_http) {
             ++total;
             ++http;
-            log_HTTP_pkt(buf, size);
+            if (logfile) log_HTTP_pkt(buf, size);
           }
         } else {  /* (Plain) TCP */
-          if (logfile && log_tcp) {
+          if (log_tcp) {
             ++total;
             ++tcp;
-            log_TCP_pkt(buf, size);
+            if (logfile) log_TCP_pkt(buf, size);
           }
         }
         break;
@@ -108,16 +108,16 @@ void dumpPkt(unsigned char *buf, int size) {
       case IPPROTO_UDP:  /* UDP */
         struct udphdr *udph = (struct udphdr *)(buf + sizeof(struct ethhdr) + iphdrlen);
         if (ntohs(udph->source) == DNS_PORT || ntohs(udph->dest) == DNS_PORT) { /* DNS */
-          if (logfile && log_dns) {
+          if (log_dns) {
             ++total;
             ++dns;
-            log_DNS_pkt(buf, size);
+            if (logfile) log_DNS_pkt(buf, size);
           }
         } else { /* (Plain) UDP */
-          if (logfile && log_udp) {
+          if (log_udp) {
             ++total;
             ++udp;
-            log_UDP_pkt(buf, size);
+            if (logfile) log_UDP_pkt(buf, size);
           }
         }
         break;
